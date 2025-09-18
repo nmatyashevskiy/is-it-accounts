@@ -1,0 +1,7 @@
+pandas==2.2.3
+streamlit==1.41.0
+simple_salesforce==1.12.6
+folium==0.19.5
+streamlit-folium==0.24.0
+XlsxWriter==3.2.1
+openpyxl==3.1.5
