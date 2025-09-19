@@ -91,7 +91,7 @@ def main():
     #Display filters
     cola, colb = st.columns([0.9, 0.1])
     with cola:
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         
         with col1:
             account_segment_list = df['Account Segment'].map(lambda x: str(x)).unique()
@@ -108,6 +108,13 @@ def main():
                     called_list[i] = "-"
             called_list.sort()
             called = st.multiselect('Called', called_list)
+        
+        with col3:
+            st.write('')
+            st.write('')
+            if st.button("🔄 Refresh data"):#, use_container_width=True):
+                get_data.clear()
+                df = get_data(st.session_state.IS_name)
     
         col4, col5, col6 = st.columns(3)
         with col4:
@@ -155,8 +162,8 @@ def main():
     hollowcolor = '#E2E2E2'
     size = 30
 
-    textvariable = int((df_filtered['# Calls'].sum()/df_filtered['IS Target'].sum())*100)
-    arcvariable = (df_filtered['# Calls'].sum()/df_filtered['IS Target'].sum())*220
+    textvariable = int((df_filtered[df_filtered['# Calls']>0]['Account ID'].nunique()/df_filtered['Account ID'].nunique())*100)
+    arcvariable = (df_filtered[df_filtered['# Calls']>0]['Account ID'].nunique()/df_filtered['Account ID'].nunique())*220
     if textvariable >=100:
         text_x = 380
         angle = 380
@@ -195,5 +202,4 @@ def main():
                                 mime='application/vnd.ms-excel')
 
 if __name__ == "__main__":
-
     main()
