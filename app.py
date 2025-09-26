@@ -60,11 +60,12 @@ def get_data(IS_name):
     All_Accounts['Last Call new'] = All_Accounts['Last Call new'].dt.date
     All_Accounts['Last Call new'] = All_Accounts['Last Call new'].fillna(0)
     today = date.today()
-    All_Accounts['Days vo Calls'] = All_Accounts['Last Call new'].map(lambda x: (today - pd.to_datetime(x).date()).days)
-    
+    All_Accounts['Days wo Calls'] = All_Accounts['Last Call new'].map(lambda x: (today - pd.to_datetime(x).date()).days)
     
     All_Accounts['Call Rate'] = All_Accounts['# Calls'].map(lambda x: str(int(x))) + "/" + All_Accounts['IS Target'].map(lambda x: str(int(x)))
     All_Accounts['Coverage'] = All_Accounts['# Calls'] / All_Accounts['IS Target']
+    All_Accounts['Coverage_tech'] = All_Accounts['# Calls'] / All_Accounts['IS Target']
+    All_Accounts.loc[All_Accounts['Coverage_tech'] > 1, 'Coverage_tech'] = 1
     All_Accounts['Called'] = All_Accounts['# Calls'].map(lambda x: "Yes" if x > 0 else "No")
     
     All_Accounts['Last Call'] = All_Accounts['Last Call'].map(lambda x: str(x.date()).replace("/", "-"))
@@ -147,13 +148,13 @@ def main():
     df_filtered = df[(df['Account Segment'].isin(account_segment_filter))
                      &(df['Called'].isin(called_filter))
                      &(df['Coverage'] >= int(start_coverage[:-1]) / 100)
-                     &(df['Coverage'] <= int(end_coverage[:-1]) / 100)
+                     &(df['Coverage_tech'] <= int(end_coverage[:-1]) / 100)
                      &(df['IS Target'] >= target[0])
                      &(df['IS Target'] <= target[1])]
     df_filtered['Coverage'] = df_filtered['Coverage'] * 100
     df_filtered['Brick Code'] = df_filtered['Brick Code'].astype('str')
     if on:
-        df_filtered = df_filtered[df_filtered['Days vo Calls'] > 90]
+        df_filtered = df_filtered[df_filtered['Days wo Calls'] > 90]
     df_filtered = df_filtered[['Account ID', 'Account Owner', 'IS', 'Account Name', 'Account Segment',
                                'IS Target', '# Calls', 'Last Call', 'Call Rate', 'Coverage', 'Called',
                                 'Main Phone', 'Email', 'Account Status', 'Call Status (Account)', 'Brick Code',
@@ -190,7 +191,7 @@ def main():
     st.dataframe(df_filtered,
                 column_config={
                 'Coverage': st.column_config.NumberColumn(
-                     "Coverage",
+                     "Call Target Achievement",
                      help="The percentage value",
                      format="%.0f%%")},
                 hide_index=True)
